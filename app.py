@@ -1,24 +1,40 @@
 import streamlit as st
 from transformers import pipeline
 
-classifier = pipeline("sentiment-analysis", model="model")
+# Page configuration
+st.set_page_config(
+    page_title="Sentiment Analysis Transformer Project",
+    page_icon="💬",
+    layout="centered"
+)
 
-st.title("Sentiment Analysis App")
+# Title
+st.title("💬 Sentiment Analysis Transformer Project")
+st.subheader("Analyze whether text sentiment is Positive or Negative")
 
-text = st.text_input("Enter your text")
+# Load Hugging Face pretrained model
+@st.cache_resource
+def load_model():
+    return pipeline("sentiment-analysis")
 
-if text:
-    result = classifier(text)
+classifier = load_model()
 
-    label = result[0]['label']
-    score = result[0]['score']
+# User input
+user_input = st.text_area("Enter your text here:")
 
-# Convert label
-    if label == "LABEL_1":
-        sentiment = "Positive 😊"
+# Analyze button
+if st.button("Analyze Sentiment"):
+    if user_input.strip():
+        result = classifier(user_input)
+
+        label = result[0]['label']
+        score = result[0]['score']
+
+        st.success(f"Sentiment: {label}")
+        st.info(f"Confidence Score: {score:.2f}")
     else:
-        sentiment = "Negative 😡"
+        st.warning("Please enter some text.")
 
-# Display nicely
-    st.write("Sentiment:", sentiment)
-    st.write("Confidence:", round(score, 3))
+# Footer
+st.markdown("---")
+st.caption("Built with Streamlit + Hugging Face Transformers")
